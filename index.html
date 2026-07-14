@@ -1,0 +1,215 @@
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Teste interativo de aptidão aeróbica de 1km: triagem de segurança, perguntas complementares, instruções do teste e resultado com classificação em iniciante, intermediária ou avançada.</h2>
+<style>
+.pill{padding:8px 16px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--surface-2);font-size:14px;cursor:pointer;color:var(--text-primary)}
+.pill:hover{background:var(--surface-1)}
+.pill[data-selected="true"]{background:var(--bg-accent);border-color:var(--border-accent);color:var(--text-accent);font-weight:500}
+.qrow{margin-bottom:1.25rem}
+.qlabel{font-size:14px;margin-bottom:8px;color:var(--text-primary)}
+.pillgroup{display:flex;gap:8px;flex-wrap:wrap}
+.card{background:var(--surface-1);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.stepwrap{display:none}
+.stepwrap.active{display:block}
+.progress{font-size:12px;color:var(--text-muted);margin-bottom:1rem}
+.btnbar{display:flex;gap:8px;margin-top:1.5rem}
+</style>
+
+<div class="progress" id="progress">Etapa 1 de 5 — Triagem de segurança</div>
+
+<div class="stepwrap active" data-step="1">
+  <div id="parq-list"></div>
+  <div id="parq-warning" style="display:none;background:var(--bg-danger);color:var(--text-danger);padding:1rem 1.25rem;border-radius:12px;margin-top:1rem;font-size:14px;line-height:1.6;">
+    Uma ou mais respostas indicam que você deve buscar orientação médica antes de fazer este teste. Converse com seu médico e, com a liberação dele, volte para continuar.
+  </div>
+  <div class="btnbar">
+    <button id="parq-continue" disabled>Continuar</button>
+  </div>
+</div>
+
+<div class="stepwrap" data-step="2">
+  <div id="comp-list"></div>
+  <div class="btnbar">
+    <button id="comp-back">Voltar</button>
+    <button id="comp-continue">Continuar</button>
+  </div>
+</div>
+
+<div class="stepwrap" data-step="3">
+  <div class="card">
+    <p style="font-size:14px;line-height:1.7;margin:0 0 0.5rem;"><i class="ti ti-list-check" style="font-size:16px;vertical-align:-2px;margin-right:6px;" aria-hidden="true"></i>Como fazer o teste</p>
+    <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin:0;">
+      1. Aqueça 5 minutos com caminhada leve e mobilidade.<br>
+      2. Percorra 1km no ritmo mais confortável e sustentável — caminhando, alternando ou correndo. Não pare.<br>
+      3. Cronometre o tempo total.<br>
+      4. Ao final, avalie seu esforço percebido de 0 a 10.
+    </p>
+  </div>
+  <div class="qrow">
+    <label class="qlabel">Tempo total do 1km</label>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <input type="number" id="min-input" min="0" max="60" placeholder="min" style="width:80px;">
+      <span style="font-size:14px;color:var(--text-secondary);">min</span>
+      <input type="number" id="sec-input" min="0" max="59" placeholder="seg" style="width:80px;">
+      <span style="font-size:14px;color:var(--text-secondary);">seg</span>
+    </div>
+  </div>
+  <div class="qrow">
+    <label class="qlabel"><input type="checkbox" id="not-completed" style="margin-right:8px;">Não consegui completar sem pausas longas</label>
+  </div>
+  <div class="qrow">
+    <label class="qlabel">Esforço percebido: <span id="rpe-out" style="font-weight:500;">5</span> / 10</label>
+    <input type="range" id="rpe-input" min="0" max="10" step="1" value="5" style="width:100%;">
+  </div>
+  <div class="btnbar">
+    <button id="test-back">Voltar</button>
+    <button id="test-continue">Ver resultado</button>
+  </div>
+</div>
+
+<div class="stepwrap" data-step="4">
+  <div class="card" style="text-align:center;">
+    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 4px;">Seu nível</p>
+    <p id="final-level" style="font-size:24px;font-weight:500;margin:0 0 12px;"></p>
+    <p id="final-detail" style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin:0;"></p>
+  </div>
+  <div class="btnbar">
+    <button id="restart-btn">Refazer teste</button>
+  </div>
+</div>
+
+<script>
+const parqQuestions = [
+  "Algum médico já disse que você tem problema cardíaco ou pressão alta não controlada?",
+  "Você sente dor no peito durante esforço físico ou em repouso?",
+  "Você perde o equilíbrio ou desmaia com frequência?",
+  "Tem algum problema ósseo ou articular que piora com esforço?",
+  "Está grávida ou pariu há menos de 6 meses?",
+  "Toma medicação para o coração ou pressão?"
+];
+const compQuestions = [
+  {name:"tempo_parada", label:"Há quanto tempo você não pratica atividade física regular?", options:[
+    {text:"Nunca pratiquei", pts:0},
+    {text:"Mais de 1 ano parada", pts:1},
+    {text:"Nos últimos meses, ainda me exercitei", pts:2}
+  ]},
+  {name:"dor_articular", label:"Você sente dor articular ao caminhar rápido ou subir escadas?", options:[
+    {text:"Frequentemente", pts:0},
+    {text:"Às vezes", pts:1},
+    {text:"Nunca", pts:2}
+  ]},
+  {name:"disposicao", label:"Como está seu sono e disposição na maior parte dos dias?", options:[
+    {text:"Mal, cansada a maior parte dos dias", pts:0},
+    {text:"Ok, meio a meio", pts:1},
+    {text:"Bem, disposta", pts:2}
+  ]}
+];
+
+const parqAnswers = {};
+const compAnswers = {};
+
+const parqList = document.getElementById('parq-list');
+parqQuestions.forEach((q, i) => {
+  const row = document.createElement('div');
+  row.className = 'qrow';
+  row.innerHTML = '<div class="qlabel">' + (i+1) + '. ' + q + '</div><div class="pillgroup"><button class="pill" data-q="' + i + '" data-val="sim">Sim</button><button class="pill" data-q="' + i + '" data-val="nao">Não</button></div>';
+  parqList.appendChild(row);
+});
+parqList.querySelectorAll('.pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const q = btn.getAttribute('data-q');
+    const val = btn.getAttribute('data-val');
+    parqAnswers[q] = val;
+    parqList.querySelectorAll('[data-q="' + q + '"]').forEach(b => b.setAttribute('data-selected', b === btn ? 'true' : 'false'));
+    checkParq();
+  });
+});
+
+function checkParq(){
+  const answered = Object.keys(parqAnswers).length === parqQuestions.length;
+  const anySim = Object.values(parqAnswers).includes('sim');
+  const warning = document.getElementById('parq-warning');
+  const continueBtn = document.getElementById('parq-continue');
+  if (answered && anySim) {
+    warning.style.display = 'block';
+    continueBtn.disabled = true;
+  } else {
+    warning.style.display = 'none';
+    continueBtn.disabled = !(answered && !anySim);
+  }
+}
+
+const compList = document.getElementById('comp-list');
+compQuestions.forEach((q) => {
+  const row = document.createElement('div');
+  row.className = 'qrow';
+  const optsHtml = q.options.map(o => '<button class="pill" data-name="' + q.name + '" data-pts="' + o.pts + '">' + o.text + '</button>').join('');
+  row.innerHTML = '<div class="qlabel">' + q.label + '</div><div class="pillgroup">' + optsHtml + '</div>';
+  compList.appendChild(row);
+});
+compList.querySelectorAll('.pill').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const name = btn.getAttribute('data-name');
+    compAnswers[name] = parseInt(btn.getAttribute('data-pts'), 10);
+    compList.querySelectorAll('[data-name="' + name + '"]').forEach(b => b.setAttribute('data-selected', b === btn ? 'true' : 'false'));
+  });
+});
+
+function goToStep(n){
+  document.querySelectorAll('.stepwrap').forEach(s => s.classList.remove('active'));
+  document.querySelector('.stepwrap[data-step="' + n + '"]').classList.add('active');
+  const labels = {1:'Triagem de segurança', 2:'Perguntas complementares', 3:'Teste de 1km', 4:'Resultado'};
+  document.getElementById('progress').textContent = 'Etapa ' + n + ' de 4 — ' + labels[n];
+}
+
+document.getElementById('parq-continue').addEventListener('click', () => goToStep(2));
+document.getElementById('comp-back').addEventListener('click', () => goToStep(1));
+document.getElementById('comp-continue').addEventListener('click', () => goToStep(3));
+document.getElementById('test-back').addEventListener('click', () => goToStep(2));
+
+document.getElementById('rpe-input').addEventListener('input', (e) => {
+  document.getElementById('rpe-out').textContent = e.target.value;
+});
+
+document.getElementById('test-continue').addEventListener('click', () => {
+  const min = parseInt(document.getElementById('min-input').value, 10) || 0;
+  const sec = parseInt(document.getElementById('sec-input').value, 10) || 0;
+  const rpe = parseInt(document.getElementById('rpe-input').value, 10);
+  const notCompleted = document.getElementById('not-completed').checked;
+  const totalSec = min * 60 + sec;
+
+  let baseLevel;
+  if (notCompleted || totalSec >= 540 || totalSec === 0) baseLevel = 0;
+  else if (totalSec >= 420) baseLevel = 1;
+  else baseLevel = 2;
+
+  if (rpe >= 8 && baseLevel > 0) baseLevel -= 1;
+
+  const compScore = Object.values(compAnswers).reduce((a,b) => a+b, 0);
+  if (compScore <= 2 && baseLevel > 0) baseLevel -= 1;
+
+  const levelNames = ['Iniciante', 'Intermediária', 'Avançada'];
+  const levelDetails = [
+    'Seu plano começa com caminhada progressiva e pequenos intervalos de trote nas últimas semanas. O foco agora é criar o hábito e a confiança do corpo, sem pressa.',
+    'Seu plano usa caminhada e corrida intercaladas desde a semana 1, com progressão gradual de volume.',
+    'Seu plano parte de corrida contínua desde o início, com progressão de tempo e trabalho de ritmo.'
+  ];
+
+  document.getElementById('final-level').textContent = levelNames[baseLevel];
+  document.getElementById('final-detail').textContent = levelDetails[baseLevel];
+  goToStep(4);
+});
+
+document.getElementById('restart-btn').addEventListener('click', () => {
+  Object.keys(parqAnswers).forEach(k => delete parqAnswers[k]);
+  Object.keys(compAnswers).forEach(k => delete compAnswers[k]);
+  parqList.querySelectorAll('.pill').forEach(b => b.setAttribute('data-selected', 'false'));
+  compList.querySelectorAll('.pill').forEach(b => b.setAttribute('data-selected', 'false'));
+  document.getElementById('min-input').value = '';
+  document.getElementById('sec-input').value = '';
+  document.getElementById('not-completed').checked = false;
+  document.getElementById('rpe-input').value = 5;
+  document.getElementById('rpe-out').textContent = '5';
+  document.getElementById('parq-continue').disabled = true;
+  document.getElementById('parq-warning').style.display = 'none';
+  goToStep(1);
+});
+</script>
