@@ -1,215 +1,660 @@
-<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Teste interativo de aptidão aeróbica de 1km: triagem de segurança, perguntas complementares, instruções do teste e resultado com classificação em iniciante, intermediária ou avançada.</h2>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Protocolo NeuroCorrida — Teste de Ponto de Partida</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-.pill{padding:8px 16px;border-radius:var(--radius);border:0.5px solid var(--border-strong);background:var(--surface-2);font-size:14px;cursor:pointer;color:var(--text-primary)}
-.pill:hover{background:var(--surface-1)}
-.pill[data-selected="true"]{background:var(--bg-accent);border-color:var(--border-accent);color:var(--text-accent);font-weight:500}
-.qrow{margin-bottom:1.25rem}
-.qlabel{font-size:14px;margin-bottom:8px;color:var(--text-primary)}
-.pillgroup{display:flex;gap:8px;flex-wrap:wrap}
-.card{background:var(--surface-1);border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.stepwrap{display:none}
-.stepwrap.active{display:block}
-.progress{font-size:12px;color:var(--text-muted);margin-bottom:1rem}
-.btnbar{display:flex;gap:8px;margin-top:1.5rem}
+  :root{
+    --bg:#EFE9DC;
+    --surface:#FBF8F2;
+    --surface-2:#F3EEE1;
+    --ink:#2A2820;
+    --muted:#7C7561;
+    --line: rgba(42,40,32,0.14);
+    --moss:#4B6B4A;
+    --moss-ink:#1F3320;
+    --gold:#C6922E;
+    --gold-ink:#7A5A18;
+    --clay:#B75B3B;
+    --clay-ink:#6E3822;
+    --radius: 14px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{
+    max-width:640px;
+    margin:0 auto;
+    padding:28px 20px 60px;
+  }
+  h1,h2,h3{
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    letter-spacing:-0.01em;
+    margin:0 0 8px;
+  }
+  .eyebrow{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:12px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color:var(--gold-ink);
+    margin-bottom:6px;
+  }
+  p{margin:0 0 14px; color:var(--ink);}
+  .muted{color:var(--muted);}
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 24px;
+    box-shadow: 0 1px 0 rgba(42,40,32,0.03);
+  }
+
+  /* ---- Track / progress signature element ---- */
+  .track-wrap{
+    margin-bottom:26px;
+  }
+  .track{
+    position:relative;
+    height:34px;
+    margin-bottom:10px;
+  }
+  .track-line{
+    position:absolute;
+    top:16px; left:0; right:0;
+    height:2px;
+    background-image: linear-gradient(to right, var(--line) 0 8px, transparent 8px 14px);
+    background-size: 14px 2px;
+    background-repeat:repeat-x;
+  }
+  .track-fill{
+    position:absolute;
+    top:16px; left:0;
+    height:2px;
+    background:var(--gold);
+    transition: width 0.5s ease;
+  }
+  .track-dot{
+    position:absolute;
+    top:8px;
+    width:18px; height:18px;
+    border-radius:50%;
+    background:var(--gold);
+    border:3px solid var(--surface);
+    box-shadow:0 0 0 1px var(--gold);
+    transition: left 0.5s ease;
+  }
+  .track-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+  }
+  .track-labels span.active{color:var(--ink);}
+
+  /* ---- Buttons ---- */
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:14px 22px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+  }
+  .btn:active{transform:scale(0.98);}
+  .btn-primary{
+    background:var(--ink);
+    color:var(--surface);
+    width:100%;
+  }
+  .btn-primary:disabled{
+    opacity:0.35;
+    cursor:not-allowed;
+  }
+  .btn-ghost{
+    background:transparent;
+    color:var(--ink);
+    border:1px solid var(--line);
+  }
+
+  /* ---- Question blocks ---- */
+  .q{
+    margin-bottom:22px;
+    padding-bottom:22px;
+    border-bottom:1px solid var(--line);
+  }
+  .q:last-of-type{border-bottom:none; margin-bottom:0; padding-bottom:0;}
+  .q-text{
+    font-weight:600;
+    font-size:16px;
+    margin-bottom:12px;
+  }
+  .q-num{
+    color:var(--gold-ink);
+    font-weight:800;
+    margin-right:6px;
+  }
+  .opts{display:flex; flex-direction:column; gap:8px;}
+  .opts.row{flex-direction:row; gap:10px;}
+  .opt{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--surface-2);
+    cursor:pointer;
+    font-size:14.5px;
+    font-weight:500;
+    text-align:left;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+  .opts.row .opt{flex:1; justify-content:center; text-align:center;}
+  .opt:hover{border-color:var(--muted);}
+  .opt.selected{
+    border-color:var(--ink);
+    background:var(--surface);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  .opt .dot{
+    width:16px;height:16px;border-radius:50%;
+    border:2px solid var(--muted);
+    flex-shrink:0;
+  }
+  .opt.selected .dot{
+    border-color:var(--ink);
+    background: radial-gradient(circle, var(--ink) 0 5px, transparent 6px);
+  }
+
+  /* ---- Alert / stop screen ---- */
+  .alert{
+    background: #F4E7DF;
+    border:1px solid var(--clay);
+    border-radius:var(--radius);
+    padding:22px;
+    color:var(--clay-ink);
+  }
+  .alert h2{color:var(--clay-ink);}
+
+  /* ---- Instruction list ---- */
+  ul.steps{margin:0 0 16px; padding-left:20px;}
+  ul.steps li{margin-bottom:8px;}
+  .safety-box{
+    background:#F4E7DF;
+    border-left:4px solid var(--clay);
+    border-radius:8px;
+    padding:14px 16px;
+    margin:16px 0;
+    font-size:14px;
+    color:var(--clay-ink);
+    font-weight:600;
+  }
+  .pse-scale{
+    background:var(--surface-2);
+    border-radius:10px;
+    padding:14px 16px;
+    margin:14px 0;
+    font-size:13.5px;
+  }
+  .pse-scale div{margin-bottom:4px;}
+
+  /* ---- Result input ---- */
+  .time-input{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:6px;
+  }
+  .time-input input{
+    width:70px;
+    font-size:22px;
+    font-family:'Archivo',sans-serif;
+    font-weight:700;
+    text-align:center;
+    padding:10px 6px;
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--surface-2);
+  }
+  .time-input span{font-size:18px; font-weight:700; color:var(--muted);}
+  .checkbox-row{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    margin:14px 0 20px;
+    cursor:pointer;
+    font-size:14px;
+    color:var(--muted);
+  }
+  .checkbox-row input{margin-top:3px;}
+
+  input[type="range"]{
+    width:100%;
+    accent-color: var(--ink);
+    margin: 10px 0;
+  }
+  .pse-value{
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    font-size:36px;
+    margin-bottom:2px;
+  }
+  .pse-label{
+    font-weight:600;
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+
+  /* ---- Final result ---- */
+  .level-badge{
+    display:inline-block;
+    padding:6px 14px;
+    border-radius:100px;
+    font-family:'Archivo',sans-serif;
+    font-weight:900;
+    font-size:13px;
+    letter-spacing:0.02em;
+    text-transform:uppercase;
+    margin-bottom:14px;
+  }
+  .level-iniciante{background:#E6DECF; color:var(--moss-ink);}
+  .level-intermediaria{background:#EAD9B3; color:var(--gold-ink);}
+  .level-avancada{background:#DCE6DC; color:var(--moss-ink);}
+
+  .adjust-note{
+    background:var(--surface-2);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:13.5px;
+    color:var(--muted);
+    margin:16px 0;
+  }
+  .adjust-note b{color:var(--ink);}
+
+  .hidden{display:none !important;}
+
+  footer.note{
+    text-align:center;
+    font-size:12px;
+    color:var(--muted);
+    margin-top:26px;
+  }
 </style>
+</head>
+<body>
+<div class="app">
 
-<div class="progress" id="progress">Etapa 1 de 5 — Triagem de segurança</div>
-
-<div class="stepwrap active" data-step="1">
-  <div id="parq-list"></div>
-  <div id="parq-warning" style="display:none;background:var(--bg-danger);color:var(--text-danger);padding:1rem 1.25rem;border-radius:12px;margin-top:1rem;font-size:14px;line-height:1.6;">
-    Uma ou mais respostas indicam que você deve buscar orientação médica antes de fazer este teste. Converse com seu médico e, com a liberação dele, volte para continuar.
-  </div>
-  <div class="btnbar">
-    <button id="parq-continue" disabled>Continuar</button>
-  </div>
-</div>
-
-<div class="stepwrap" data-step="2">
-  <div id="comp-list"></div>
-  <div class="btnbar">
-    <button id="comp-back">Voltar</button>
-    <button id="comp-continue">Continuar</button>
-  </div>
-</div>
-
-<div class="stepwrap" data-step="3">
-  <div class="card">
-    <p style="font-size:14px;line-height:1.7;margin:0 0 0.5rem;"><i class="ti ti-list-check" style="font-size:16px;vertical-align:-2px;margin-right:6px;" aria-hidden="true"></i>Como fazer o teste</p>
-    <p style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin:0;">
-      1. Aqueça 5 minutos com caminhada leve e mobilidade.<br>
-      2. Percorra 1km no ritmo mais confortável e sustentável — caminhando, alternando ou correndo. Não pare.<br>
-      3. Cronometre o tempo total.<br>
-      4. Ao final, avalie seu esforço percebido de 0 a 10.
-    </p>
-  </div>
-  <div class="qrow">
-    <label class="qlabel">Tempo total do 1km</label>
-    <div style="display:flex;gap:8px;align-items:center;">
-      <input type="number" id="min-input" min="0" max="60" placeholder="min" style="width:80px;">
-      <span style="font-size:14px;color:var(--text-secondary);">min</span>
-      <input type="number" id="sec-input" min="0" max="59" placeholder="seg" style="width:80px;">
-      <span style="font-size:14px;color:var(--text-secondary);">seg</span>
+  <div class="track-wrap" id="trackWrap">
+    <div class="track">
+      <div class="track-line"></div>
+      <div class="track-fill" id="trackFill" style="width:0%"></div>
+      <div class="track-dot" id="trackDot" style="left:0%"></div>
+    </div>
+    <div class="track-labels">
+      <span id="lbl0">Início</span>
+      <span id="lbl1">Triagem</span>
+      <span id="lbl2">Histórico</span>
+      <span id="lbl3">Teste 1km</span>
+      <span id="lbl4">Resultado</span>
     </div>
   </div>
-  <div class="qrow">
-    <label class="qlabel"><input type="checkbox" id="not-completed" style="margin-right:8px;">Não consegui completar sem pausas longas</label>
-  </div>
-  <div class="qrow">
-    <label class="qlabel">Esforço percebido: <span id="rpe-out" style="font-weight:500;">5</span> / 10</label>
-    <input type="range" id="rpe-input" min="0" max="10" step="1" value="5" style="width:100%;">
-  </div>
-  <div class="btnbar">
-    <button id="test-back">Voltar</button>
-    <button id="test-continue">Ver resultado</button>
-  </div>
-</div>
 
-<div class="stepwrap" data-step="4">
-  <div class="card" style="text-align:center;">
-    <p style="font-size:13px;color:var(--text-secondary);margin:0 0 4px;">Seu nível</p>
-    <p id="final-level" style="font-size:24px;font-weight:500;margin:0 0 12px;"></p>
-    <p id="final-detail" style="font-size:13px;color:var(--text-secondary);line-height:1.7;margin:0;"></p>
-  </div>
-  <div class="btnbar">
-    <button id="restart-btn">Refazer teste</button>
-  </div>
+  <!-- STEP 0: INTRO -->
+  <section id="step-intro" class="card">
+    <div class="eyebrow">Ponto de Partida · Protocolo NeuroCorrida</div>
+    <h1>Vamos encontrar seu ponto de partida real</h1>
+    <p>Em poucos minutos, você vai descobrir qual nível do seu plano de 8 semanas foi calibrado para o seu corpo hoje: Iniciante, Intermediário ou Avançado.</p>
+    <p class="muted">São 3 etapas rápidas: uma triagem de segurança, algumas perguntas sobre sua rotina recente, e um teste simples de 1km que você faz no seu próprio ritmo, em qualquer lugar plano perto de você.</p>
+    <button class="btn btn-primary" onclick="goTo('parq')">Começar avaliação</button>
+  </section>
+
+  <!-- STEP 1: PAR-Q -->
+  <section id="step-parq" class="card hidden">
+    <div class="eyebrow">Etapa 1 de 3</div>
+    <h2>Triagem de segurança</h2>
+    <p class="muted">Responda com sinceridade. Isso existe para cuidar de você, não para te barrar.</p>
+
+    <div class="q">
+      <div class="q-text"><span class="q-num">1.</span>Algum médico já te disse que você tem um problema no coração e que atividade física deve ser feita apenas com acompanhamento?</div>
+      <div class="opts row" data-q="parq1"><button class="opt" data-val="sim">Sim</button><button class="opt" data-val="nao">Não</button></div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2.</span>Você sente dor no peito ao fazer esforço físico, como subir escadas rápido?</div>
+      <div class="opts row" data-q="parq2"><button class="opt" data-val="sim">Sim</button><button class="opt" data-val="nao">Não</button></div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3.</span>Nos últimos 30 dias, você sentiu dor no peito mesmo sem estar se exercitando?</div>
+      <div class="opts row" data-q="parq3"><button class="opt" data-val="sim">Sim</button><button class="opt" data-val="nao">Não</button></div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">4.</span>Você perde o equilíbrio por tontura, ou desmaiou alguma vez nos últimos 12 meses?</div>
+      <div class="opts row" data-q="parq4"><button class="opt" data-val="sim">Sim</button><button class="opt" data-val="nao">Não</button></div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">5.</span>Você tem algum problema ósseo ou articular (joelho, quadril, coluna) que pode piorar com uma atividade mais intensa?</div>
+      <div class="opts row" data-q="parq5"><button class="opt" data-val="sim">Sim</button><button class="opt" data-val="nao">Não</button></div>
+    </div>
+
+    <button class="btn btn-primary" id="parqContinue" disabled onclick="handleParqSubmit()">Continuar</button>
+  </section>
+
+  <!-- STEP 1B: PAR-Q STOP -->
+  <section id="step-parq-stop" class="card hidden">
+    <div class="alert">
+      <h2>Antes de continuar, procure orientação médica</h2>
+      <p>Uma ou mais respostas indicam que o ideal, antes de começar o teste físico, é conversar com um médico sobre a atividade que você pretende praticar.</p>
+      <p>Isso não significa que a corrida não é para você. Significa que o seu ponto de partida seguro precisa passar primeiro pela liberação de quem acompanha sua saúde de perto.</p>
+      <p style="margin-bottom:0;">Quando tiver essa conversa, volte aqui para refazer a avaliação.</p>
+    </div>
+    <button class="btn btn-ghost" style="margin-top:18px; width:100%;" onclick="restart()">Voltar ao início</button>
+  </section>
+
+  <!-- STEP 2: AUTORRELATO -->
+  <section id="step-autorelato" class="card hidden">
+    <div class="eyebrow">Etapa 2 de 3</div>
+    <h2>Seu histórico recente</h2>
+    <p class="muted">O tempo do teste não conta a história toda. Essas respostas ajudam a calibrar o resultado final ao que seu corpo está vivendo agora.</p>
+
+    <div class="q">
+      <div class="q-text"><span class="q-num">1.</span>Há quanto tempo você não pratica atividade física de forma regular?</div>
+      <div class="opts" data-q="auto1">
+        <button class="opt" data-val="2"><span class="dot"></span>Nunca pratiquei, ou faz mais de 1 ano</button>
+        <button class="opt" data-val="1"><span class="dot"></span>Nos últimos meses, de forma irregular</button>
+        <button class="opt" data-val="0"><span class="dot"></span>Pratico regularmente há alguns meses</button>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">2.</span>Você sente dor articular ao caminhar rápido ou subir escadas?</div>
+      <div class="opts" data-q="auto2">
+        <button class="opt" data-val="2"><span class="dot"></span>Sim, com frequência</button>
+        <button class="opt" data-val="1"><span class="dot"></span>Às vezes, de forma leve</button>
+        <button class="opt" data-val="0"><span class="dot"></span>Não sinto dor</button>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-text"><span class="q-num">3.</span>Como está seu sono e sua disposição na maior parte dos dias?</div>
+      <div class="opts" data-q="auto3">
+        <button class="opt" data-val="2"><span class="dot"></span>Durmo mal e me sinto cansada quase sempre</button>
+        <button class="opt" data-val="1"><span class="dot"></span>Tenho dias bons e dias ruins</button>
+        <button class="opt" data-val="0"><span class="dot"></span>Durmo bem e me sinto disposta</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="autoContinue" disabled onclick="goTo('instrucoes')">Continuar</button>
+  </section>
+
+  <!-- STEP 3A: INSTRUÇÕES -->
+  <section id="step-instrucoes" class="card hidden">
+    <div class="eyebrow">Etapa 3 de 3</div>
+    <h2>Como fazer o teste de 1km</h2>
+
+    <p><b>O que você precisa:</b></p>
+    <ul class="steps">
+      <li>Um local plano: pista de atletismo, parque com distância marcada, ou um app de corrida / relógio com GPS</li>
+      <li>Tênis confortável</li>
+      <li>Cronômetro (o do celular serve)</li>
+    </ul>
+
+    <p><b>Como fazer:</b></p>
+    <ul class="steps">
+      <li>Faça 5 minutos de aquecimento: caminhada leve e mobilidade de tornozelo, joelho e quadril</li>
+      <li>Percorra 1km no ritmo mais confortável e sustentável possível. Você pode caminhar, alternar caminhada e trote, ou correr. O importante é não parar e não forçar até sentir dor ou falta de ar extrema</li>
+      <li>Cronometre o tempo total do percurso</li>
+      <li>Ao final, anote sua Percepção de Esforço, numa escala de 0 a 10</li>
+    </ul>
+
+    <div class="safety-box">
+      Pare imediatamente, independente da instrução acima, se sentir dor no peito, tontura forte, falta de ar extrema ou qualquer mal-estar.
+    </div>
+
+    <div class="pse-scale">
+      <div><b>0-2</b> — muito fácil, dava para continuar por horas</div>
+      <div><b>3-5</b> — moderado, confortável mas exigiu atenção</div>
+      <div><b>6-8</b> — difícil, precisou de força de vontade</div>
+      <div><b>9-10</b> — extremo, quase não completou</div>
+    </div>
+
+    <button class="btn btn-primary" onclick="goTo('resultado-input')">Já fiz o teste, vou registrar meu resultado</button>
+  </section>
+
+  <!-- STEP 3B: RESULTADO INPUT -->
+  <section id="step-resultado-input" class="card hidden">
+    <div class="eyebrow">Registrar resultado</div>
+    <h2>Quanto tempo você levou?</h2>
+
+    <div class="time-input">
+      <input type="number" id="inpMin" min="0" max="60" placeholder="00"><span>min</span>
+      <input type="number" id="inpSeg" min="0" max="59" placeholder="00"><span>seg</span>
+    </div>
+
+    <label class="checkbox-row">
+      <input type="checkbox" id="inpNaoCompletou" onchange="toggleTimeInputs()">
+      Não consegui completar o 1km sem pausas longas
+    </label>
+
+    <h2 style="margin-top:20px;">Qual foi sua percepção de esforço?</h2>
+    <input type="range" id="inpPse" min="0" max="10" value="5" oninput="updatePseLabel()">
+    <div class="pse-value" id="pseValue">5</div>
+    <div class="pse-label" id="pseLabel">Moderado, confortável mas exigiu atenção</div>
+
+    <button class="btn btn-primary" onclick="calcularResultado()">Ver meu resultado</button>
+  </section>
+
+  <!-- STEP 4: RESULTADO FINAL -->
+  <section id="step-resultado-final" class="card hidden">
+    <div class="eyebrow">Seu resultado</div>
+    <div class="level-badge" id="levelBadge">Nível</div>
+    <h1 id="levelTitle">Título</h1>
+    <p id="levelDesc"></p>
+
+    <div class="adjust-note hidden" id="adjustNote"></div>
+
+    <button class="btn btn-ghost" style="width:100%; margin-top:10px;" onclick="restart()">Refazer avaliação</button>
+  </section>
+
+  <footer class="note">Protocolo NeuroCorrida · Ponto de Partida</footer>
 </div>
 
 <script>
-const parqQuestions = [
-  "Algum médico já disse que você tem problema cardíaco ou pressão alta não controlada?",
-  "Você sente dor no peito durante esforço físico ou em repouso?",
-  "Você perde o equilíbrio ou desmaia com frequência?",
-  "Tem algum problema ósseo ou articular que piora com esforço?",
-  "Está grávida ou pariu há menos de 6 meses?",
-  "Toma medicação para o coração ou pressão?"
-];
-const compQuestions = [
-  {name:"tempo_parada", label:"Há quanto tempo você não pratica atividade física regular?", options:[
-    {text:"Nunca pratiquei", pts:0},
-    {text:"Mais de 1 ano parada", pts:1},
-    {text:"Nos últimos meses, ainda me exercitei", pts:2}
-  ]},
-  {name:"dor_articular", label:"Você sente dor articular ao caminhar rápido ou subir escadas?", options:[
-    {text:"Frequentemente", pts:0},
-    {text:"Às vezes", pts:1},
-    {text:"Nunca", pts:2}
-  ]},
-  {name:"disposicao", label:"Como está seu sono e disposição na maior parte dos dias?", options:[
-    {text:"Mal, cansada a maior parte dos dias", pts:0},
-    {text:"Ok, meio a meio", pts:1},
-    {text:"Bem, disposta", pts:2}
-  ]}
-];
+const steps = ['intro','parq','parq-stop','autorelato','instrucoes','resultado-input','resultado-final'];
+const trackSteps = { intro:0, parq:1, 'parq-stop':1, autorelato:2, instrucoes:3, 'resultado-input':3, 'resultado-final':4 };
 
-const parqAnswers = {};
-const compAnswers = {};
+const state = {
+  parq: {},
+  autorelato: {}
+};
 
-const parqList = document.getElementById('parq-list');
-parqQuestions.forEach((q, i) => {
-  const row = document.createElement('div');
-  row.className = 'qrow';
-  row.innerHTML = '<div class="qlabel">' + (i+1) + '. ' + q + '</div><div class="pillgroup"><button class="pill" data-q="' + i + '" data-val="sim">Sim</button><button class="pill" data-q="' + i + '" data-val="nao">Não</button></div>';
-  parqList.appendChild(row);
-});
-parqList.querySelectorAll('.pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const q = btn.getAttribute('data-q');
-    const val = btn.getAttribute('data-val');
-    parqAnswers[q] = val;
-    parqList.querySelectorAll('[data-q="' + q + '"]').forEach(b => b.setAttribute('data-selected', b === btn ? 'true' : 'false'));
-    checkParq();
+function goTo(stepId){
+  steps.forEach(s => document.getElementById('step-'+s).classList.add('hidden'));
+  document.getElementById('step-'+stepId).classList.remove('hidden');
+  updateTrack(stepId);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateTrack(stepId){
+  const idx = trackSteps[stepId] ?? 0;
+  const pct = (idx/4)*100;
+  document.getElementById('trackFill').style.width = pct+'%';
+  document.getElementById('trackDot').style.left = pct+'%';
+  ['lbl0','lbl1','lbl2','lbl3','lbl4'].forEach((id,i)=>{
+    document.getElementById(id).classList.toggle('active', i<=idx);
+  });
+}
+
+function restart(){
+  state.parq = {};
+  state.autorelato = {};
+  document.querySelectorAll('.opt.selected').forEach(el=>el.classList.remove('selected'));
+  document.getElementById('parqContinue').disabled = true;
+  document.getElementById('autoContinue').disabled = true;
+  document.getElementById('inpMin').value = '';
+  document.getElementById('inpSeg').value = '';
+  document.getElementById('inpNaoCompletou').checked = false;
+  document.getElementById('inpPse').value = 5;
+  updatePseLabel();
+  goTo('intro');
+}
+
+// PAR-Q option handling
+document.querySelectorAll('#step-parq .opts[data-q]').forEach(group=>{
+  const qname = group.dataset.q;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.parq[qname] = btn.dataset.val;
+      checkParqComplete();
+    });
   });
 });
 
-function checkParq(){
-  const answered = Object.keys(parqAnswers).length === parqQuestions.length;
-  const anySim = Object.values(parqAnswers).includes('sim');
-  const warning = document.getElementById('parq-warning');
-  const continueBtn = document.getElementById('parq-continue');
-  if (answered && anySim) {
-    warning.style.display = 'block';
-    continueBtn.disabled = true;
+function checkParqComplete(){
+  const answered = ['parq1','parq2','parq3','parq4','parq5'].every(q => state.parq[q]);
+  document.getElementById('parqContinue').disabled = !answered;
+}
+
+function handleParqSubmit(){
+  const anySim = ['parq1','parq2','parq3','parq4','parq5'].some(q => state.parq[q] === 'sim');
+  if(anySim){
+    goTo('parq-stop');
   } else {
-    warning.style.display = 'none';
-    continueBtn.disabled = !(answered && !anySim);
+    goTo('autorelato');
   }
 }
 
-const compList = document.getElementById('comp-list');
-compQuestions.forEach((q) => {
-  const row = document.createElement('div');
-  row.className = 'qrow';
-  const optsHtml = q.options.map(o => '<button class="pill" data-name="' + q.name + '" data-pts="' + o.pts + '">' + o.text + '</button>').join('');
-  row.innerHTML = '<div class="qlabel">' + q.label + '</div><div class="pillgroup">' + optsHtml + '</div>';
-  compList.appendChild(row);
-});
-compList.querySelectorAll('.pill').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const name = btn.getAttribute('data-name');
-    compAnswers[name] = parseInt(btn.getAttribute('data-pts'), 10);
-    compList.querySelectorAll('[data-name="' + name + '"]').forEach(b => b.setAttribute('data-selected', b === btn ? 'true' : 'false'));
+// Autorrelato option handling
+document.querySelectorAll('#step-autorelato .opts[data-q]').forEach(group=>{
+  const qname = group.dataset.q;
+  group.querySelectorAll('.opt').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      group.querySelectorAll('.opt').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      state.autorelato[qname] = parseInt(btn.dataset.val, 10);
+      checkAutoComplete();
+    });
   });
 });
 
-function goToStep(n){
-  document.querySelectorAll('.stepwrap').forEach(s => s.classList.remove('active'));
-  document.querySelector('.stepwrap[data-step="' + n + '"]').classList.add('active');
-  const labels = {1:'Triagem de segurança', 2:'Perguntas complementares', 3:'Teste de 1km', 4:'Resultado'};
-  document.getElementById('progress').textContent = 'Etapa ' + n + ' de 4 — ' + labels[n];
+function checkAutoComplete(){
+  const answered = ['auto1','auto2','auto3'].every(q => state.autorelato[q] !== undefined);
+  document.getElementById('autoContinue').disabled = !answered;
 }
 
-document.getElementById('parq-continue').addEventListener('click', () => goToStep(2));
-document.getElementById('comp-back').addEventListener('click', () => goToStep(1));
-document.getElementById('comp-continue').addEventListener('click', () => goToStep(3));
-document.getElementById('test-back').addEventListener('click', () => goToStep(2));
+function toggleTimeInputs(){
+  const disabled = document.getElementById('inpNaoCompletou').checked;
+  document.getElementById('inpMin').disabled = disabled;
+  document.getElementById('inpSeg').disabled = disabled;
+}
 
-document.getElementById('rpe-input').addEventListener('input', (e) => {
-  document.getElementById('rpe-out').textContent = e.target.value;
-});
+const pseBands = [
+  {max:2, label:'Muito fácil, dava para continuar por horas'},
+  {max:5, label:'Moderado, confortável mas exigiu atenção'},
+  {max:8, label:'Difícil, precisou de força de vontade'},
+  {max:10, label:'Extremo, quase não completou'}
+];
+function updatePseLabel(){
+  const val = parseInt(document.getElementById('inpPse').value, 10);
+  document.getElementById('pseValue').textContent = val;
+  const band = pseBands.find(b => val <= b.max);
+  document.getElementById('pseLabel').textContent = band.label;
+}
+updatePseLabel();
 
-document.getElementById('test-continue').addEventListener('click', () => {
-  const min = parseInt(document.getElementById('min-input').value, 10) || 0;
-  const sec = parseInt(document.getElementById('sec-input').value, 10) || 0;
-  const rpe = parseInt(document.getElementById('rpe-input').value, 10);
-  const notCompleted = document.getElementById('not-completed').checked;
-  const totalSec = min * 60 + sec;
+function calcularResultado(){
+  const naoCompletou = document.getElementById('inpNaoCompletou').checked;
+  const min = parseInt(document.getElementById('inpMin').value, 10) || 0;
+  const seg = parseInt(document.getElementById('inpSeg').value, 10) || 0;
+  const totalSeg = min*60 + seg;
+  const pse = parseInt(document.getElementById('inpPse').value, 10);
 
+  // 1) Classificação base pelo tempo
   let baseLevel;
-  if (notCompleted || totalSec >= 540 || totalSec === 0) baseLevel = 0;
-  else if (totalSec >= 420) baseLevel = 1;
-  else baseLevel = 2;
+  if(naoCompletou || totalSeg === 0 || totalSeg > 9*60){
+    baseLevel = 'iniciante';
+  } else if(totalSeg > 7*60){
+    baseLevel = 'intermediaria';
+  } else {
+    baseLevel = 'avancada';
+  }
 
-  if (rpe >= 8 && baseLevel > 0) baseLevel -= 1;
+  const order = ['iniciante','intermediaria','avancada'];
+  let level = baseLevel;
+  let adjustments = [];
 
-  const compScore = Object.values(compAnswers).reduce((a,b) => a+b, 0);
-  if (compScore <= 2 && baseLevel > 0) baseLevel -= 1;
+  // 2) Desempate por esforço percebido: PSE >= 8 rebaixa um nível
+  if(pse >= 8 && order.indexOf(level) > 0){
+    level = order[order.indexOf(level)-1];
+    adjustments.push('esforço percebido muito alto no teste');
+  }
 
-  const levelNames = ['Iniciante', 'Intermediária', 'Avançada'];
-  const levelDetails = [
-    'Seu plano começa com caminhada progressiva e pequenos intervalos de trote nas últimas semanas. O foco agora é criar o hábito e a confiança do corpo, sem pressa.',
-    'Seu plano usa caminhada e corrida intercaladas desde a semana 1, com progressão gradual de volume.',
-    'Seu plano parte de corrida contínua desde o início, com progressão de tempo e trabalho de ritmo.'
-  ];
+  // 3) Ajuste pelo autorrelato: nunca sobe, só desce
+  const autoTotal = (state.autorelato.auto1||0) + (state.autorelato.auto2||0) + (state.autorelato.auto3||0);
+  const dorFrequente = state.autorelato.auto2 === 2;
+  if((autoTotal >= 4 || dorFrequente) && order.indexOf(level) > 0){
+    level = order[order.indexOf(level)-1];
+    adjustments.push(dorFrequente ? 'dor articular frequente relatada' : 'sinais recentes do seu histórico (rotina e recuperação)');
+  }
 
-  document.getElementById('final-level').textContent = levelNames[baseLevel];
-  document.getElementById('final-detail').textContent = levelDetails[baseLevel];
-  goToStep(4);
-});
+  renderResultado(level, baseLevel, adjustments);
+  goTo('resultado-final');
+}
 
-document.getElementById('restart-btn').addEventListener('click', () => {
-  Object.keys(parqAnswers).forEach(k => delete parqAnswers[k]);
-  Object.keys(compAnswers).forEach(k => delete compAnswers[k]);
-  parqList.querySelectorAll('.pill').forEach(b => b.setAttribute('data-selected', 'false'));
-  compList.querySelectorAll('.pill').forEach(b => b.setAttribute('data-selected', 'false'));
-  document.getElementById('min-input').value = '';
-  document.getElementById('sec-input').value = '';
-  document.getElementById('not-completed').checked = false;
-  document.getElementById('rpe-input').value = 5;
-  document.getElementById('rpe-out').textContent = '5';
-  document.getElementById('parq-continue').disabled = true;
-  document.getElementById('parq-warning').style.display = 'none';
-  goToStep(1);
-});
+const levelContent = {
+  iniciante: {
+    badgeClass: 'level-iniciante',
+    title: 'Seu ponto de partida é o Nível Iniciante',
+    desc: 'Isso não é um degrau abaixo de nada, é exatamente onde sua jornada começa hoje. Seu plano de 8 semanas vai construir base de forma segura, no seu ritmo, sem pressa e sem risco de lesão.'
+  },
+  intermediaria: {
+    badgeClass: 'level-intermediaria',
+    title: 'Seu ponto de partida é o Nível Intermediário',
+    desc: 'Seu corpo já tem alguma base construída. Seu plano de 8 semanas vai aproveitar isso para evoluir com consistência, sem pular etapas que sua rotina ainda precisa.'
+  },
+  avancada: {
+    badgeClass: 'level-avancada',
+    title: 'Seu ponto de partida é o Nível Avançado',
+    desc: 'Você já chega com uma base física sólida. Seu plano de 8 semanas vai te desafiar no ritmo certo para destravar seus primeiros 5km com técnica e consistência.'
+  }
+};
+
+function renderResultado(level, baseLevel, adjustments){
+  const content = levelContent[level];
+  document.getElementById('levelBadge').className = 'level-badge '+content.badgeClass;
+  document.getElementById('levelBadge').textContent = level === 'iniciante' ? 'Iniciante' : (level === 'intermediaria' ? 'Intermediária' : 'Avançada');
+  document.getElementById('levelTitle').textContent = content.title;
+  document.getElementById('levelDesc').textContent = content.desc;
+
+  const noteEl = document.getElementById('adjustNote');
+  if(adjustments.length > 0){
+    const baseNames = {iniciante:'Iniciante', intermediaria:'Intermediária', avancada:'Avançada'};
+    noteEl.classList.remove('hidden');
+    noteEl.innerHTML = 'Seu tempo no teste indicaria o nível <b>'+baseNames[baseLevel]+'</b>, mas ajustamos seu ponto de partida considerando '+adjustments.join(' e ')+'. Nosso protocolo prioriza consistência e prevenção de lesão, nunca empurrar você além do que seu corpo sustenta agora.';
+  } else {
+    noteEl.classList.add('hidden');
+  }
+}
 </script>
+</body>
+</html>
