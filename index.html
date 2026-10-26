@@ -117,9 +117,9 @@ $('mi').oninput=chk;$('se').oninput=chk;
 const L=['Muito fácil, dava para continuar por muito tempo','Moderado, confortável mas exigiu atenção','Difícil, exigiu força de vontade','Extremo, quase não completou'];
 function pl(){const v=+$('pse').value;$('pv').textContent=v;$('plb').textContent=L[v<=2?0:v<=5?1:v<=8?2:3]}
 const R={
-passo:['Rota Passo','A sua jornada começa aqui, no seu ritmo. O plano de 8 semanas constrói a base com uma progressão pensada para reduzir o risco de lesão.'],
+passo:['Rota Passo','A sua jornada começa aqui, no seu ritmo. O plano de 8 semanas constrói a base com uma progressão que respeita o seu corpo.'],
 intervalo:['Rota Intervalo','O plano de 8 semanas combina caminhada e trote e aumenta os trechos de trote aos poucos, sem pular etapas.'],
-trote:['Rota Trote','O plano de 8 semanas trabalha o trote contínuo e leva você aos seus primeiros 5km, com técnica e consistência.']},
+trote:['Rota Trote','O plano de 8 semanas trabalha o trote contínuo e leva você aos seus primeiros 5km, no seu ritmo e com consistência.']},
 O=['passo','intervalo','trote'],HW={passo:'Caminhei o km inteiro',intervalo:'Alternei caminhada e trote',trote:'Trotei o km inteiro'};
 function calc(){
 const p=+$('pse').value,m=+$('mi').value||0,s=+$('se').value||0;let r=st.how,adj=false;
@@ -127,7 +127,7 @@ if(p>=8&&O.indexOf(r)>0){r=O[O.indexOf(r)-1];adj=true}
 $('badge').textContent=R[r][0];$('rt').textContent='Sua rota é a '+R[r][0];$('rd').textContent=R[r][1];
 $('r1').textContent=new Date().toLocaleDateString('pt-BR');$('r2').textContent=m+' min '+String(s).padStart(2,'0')+' s';$('r3').textContent=p+' de 10';$('r4').textContent=HW[st.how];
 const a=$('adj');a.classList.toggle('hid',!adj);
-if(adj)a.textContent='Pelo jeito que você fez o teste, a indicação seria a '+R[st.how][0]+', mas o esforço alto (Borg 8 ou mais) ajusta o seu ponto de partida. Nosso protocolo prioriza consistência e a redução do risco de lesão.';
+if(adj)a.textContent='Pelo jeito que você fez o teste, a indicação seria a '+R[st.how][0]+', mas o esforço alto (Borg 8 ou mais) ajusta o seu ponto de partida. O protocolo prioriza a consistência e uma progressão que respeita o seu corpo.';
 go('res')}
 function again(){$('mi').value='';$('se').value='';$('pse').value=5;pl();st.how=null;document.querySelectorAll('.opt').forEach(x=>x.classList.remove('sel'));$('b3').disabled=true;go('intro')}
 </script>
